@@ -5,7 +5,7 @@
 
 ### 测试相关技能
 
-| Skill | 功能描述 | 适用场景 |
+| 技能 | 功能描述 | 适用场景 |
 | --- | --- | --- |
 | [prd-to-testcase](./prd-to-testcase/) | 根据需求文档、接口文档、页面说明、代码 Diff 等生成测试用例和测试分析 | 需求评审后、迭代开始前 |
 | [bug-report-writer](./bug-report-writer/) | 根据缺陷现象生成规范 Bug 单，含严重等级/复现步骤/环境信息 | 测试执行过程中 |
@@ -16,7 +16,7 @@
 
 ### 开发流程技能
 
-| Skill | 功能描述 | 适用场景 |
+| 技能 | 功能描述 | 适用场景 |
 | --- | --- | --- |
 | [spec-driven-development](./spec-driven-development/) | 在编码前创建规格说明，适用于新项目、新功能或重大变更 | 需求模糊或不完整时 |
 | [planning-and-task-breakdown](./planning-and-task-breakdown/) | 将工作拆解为有序任务，适用于有规格说明需要拆分为可实现单元时 | 任务太大或太模糊时 |
@@ -26,7 +26,7 @@
 
 ### 代码质量技能
 
-| Skill | 功能描述 | 适用场景 |
+| 技能 | 功能描述 | 适用场景 |
 | --- | --- | --- |
 | [code-review-and-quality](./code-review-and-quality/) | 多维度代码评审，适用于合并任何变更之前 | 代码评审或合并前 |
 | [code-simplification](./code-simplification/) | 简化代码以提高清晰度，适用于重构代码以提高可读性 | 代码可读性或复杂度问题时 |
@@ -34,7 +34,7 @@
 
 ### 架构与设计技能
 
-| Skill | 功能描述 | 适用场景 |
+| 技能 | 功能描述 | 适用场景 |
 | --- | --- | --- |
 | [api-and-interface-design](./api-and-interface-design/) | 指导稳定的 API 和接口设计，适用于设计 API、模块边界或任何公共接口 | 设计新 API 端点或组件接口时 |
 | [frontend-ui-engineering](./frontend-ui-engineering/) | 构建生产级 UI，适用于构建或修改面向用户的界面 | 构建新 UI 组件或页面时 |
@@ -43,7 +43,7 @@
 
 ### 发布与运维技能
 
-| Skill | 功能描述 | 适用场景 |
+| 技能 | 功能描述 | 适用场景 |
 | --- | --- | --- |
 | [ci-cd-and-automation](./ci-cd-and-automation/) | 自动化 CI/CD 流水线设置，适用于设置或修改构建和部署流水线 | 设置新项目的 CI 流水线时 |
 | [git-workflow-and-versioning](./git-workflow-and-versioning/) | 结构化 git 工作流实践，适用于提交、分支、解决冲突或组织工作时 | 所有代码变更场景 |
@@ -52,7 +52,7 @@
 
 ### 维护与文档技能
 
-| Skill | 功能描述 | 适用场景 |
+| 技能 | 功能描述 | 适用场景 |
 | --- | --- | --- |
 | [deprecation-and-migration](./deprecation-and-migration/) | 管理废弃和迁移，适用于移除旧系统、API 或功能时 | 用新系统替换旧系统时 |
 | [documentation-and-adrs](./documentation-and-adrs/) | 记录决策和文档，适用于做出架构决策或更改公共 API 时 | 做出重大架构决策时 |

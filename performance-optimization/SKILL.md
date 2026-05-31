@@ -1,51 +1,51 @@
 ---
 name: 性能优化
-description: Optimizes application performance. Use when performance requirements exist, when you suspect performance regressions, or when Core Web Vitals or load times need improvement. Use when profiling reveals bottlenecks that need fixing.
+description: 优化应用性能。适用于存在性能要求、怀疑性能回归或需要改进 Core Web Vitals 或加载时间时。适用于分析发现需要修复的瓶颈时。
 ---
 
-# Performance Optimization
+# 性能优化
 
-## Overview
+## 概述
 
-Measure before optimizing. Performance work without measurement is guessing — and guessing leads to premature optimization that adds complexity without improving what matters. Profile first, identify the actual bottleneck, fix it, measure again. Optimize only what measurements prove matters.
+优化前先度量。没有度量的性能工作是猜测——猜测会导致过早优化，增加复杂度而没有改善真正重要的东西。先分析，识别真正的瓶颈，修复它，再次度量。只优化度量证明重要的东西。
 
-## When to Use
+## 何时使用
 
-- Performance requirements exist in the spec (load time budgets, response time SLAs)
-- Users or monitoring report slow behavior
-- Core Web Vitals scores are below thresholds
-- You suspect a change introduced a regression
-- Building features that handle large datasets or high traffic
+- 规范中存在性能要求（加载时间预算、响应时间 SLA）
+- 用户或监控报告行为缓慢
+- Core Web Vitals 分数低于阈值
+- 怀疑变更引入了回归
+- 构建处理大数据集或高流量的功能
 
-**When NOT to use:** Don't optimize before you have evidence of a problem. Premature optimization adds complexity that costs more than the performance it gains.
+**何时不使用：** 在有证据证明问题之前不要优化。过早优化增加的复杂度比它获得的性能成本更高。
 
-## Core Web Vitals Targets
+## Core Web Vitals 目标
 
-| Metric | Good | Needs Improvement | Poor |
-|--------|------|-------------------|------|
-| **LCP** (Largest Contentful Paint) | ≤ 2.5s | ≤ 4.0s | > 4.0s |
-| **INP** (Interaction to Next Paint) | ≤ 200ms | ≤ 500ms | > 500ms |
-| **CLS** (Cumulative Layout Shift) | ≤ 0.1 | ≤ 0.25 | > 0.25 |
+| 指标 | 良好 | 需要改进 | 差 |
+|------|------|----------|-----|
+| **LCP**（最大内容绘制） | ≤ 2.5s | ≤ 4.0s | > 4.0s |
+| **INP**（交互到下一次绘制） | ≤ 200ms | ≤ 500ms | > 500ms |
+| **CLS**（累积布局偏移） | ≤ 0.1 | ≤ 0.25 | > 0.25 |
 
-## The Optimization Workflow
+## 优化工作流
 
 ```
-1. MEASURE  → Establish baseline with real data
-2. IDENTIFY → Find the actual bottleneck (not assumed)
-3. FIX      → Address the specific bottleneck
-4. VERIFY   → Measure again, confirm improvement
-5. GUARD    → Add monitoring or tests to prevent regression
+1. 度量  → 使用真实数据建立基线
+2. 识别  → 找到真正的瓶颈（而非假设的）
+3. 修复  → 解决特定瓶颈
+4. 验证  → 再次度量，确认改进
+5. 防护  → 添加监控或测试防止回归
 ```
 
-### Step 1: Measure
+### 步骤 1：度量
 
-**Frontend:**
+**前端：**
 ```bash
-# Lighthouse in Chrome DevTools (or CI)
-# Chrome DevTools → Performance tab → Record
-# Chrome DevTools MCP → Performance trace
+# Chrome DevTools 中的 Lighthouse（或 CI）
+# Chrome DevTools → 性能标签页 → 录制
+# Chrome DevTools MCP → 性能跟踪
 
-# Web Vitals library in code
+# 代码中的 Web Vitals 库
 import { onLCP, onINP, onCLS } from 'web-vitals';
 
 onLCP(console.log);
@@ -53,87 +53,87 @@ onINP(console.log);
 onCLS(console.log);
 ```
 
-**Backend:**
+**后端：**
 ```bash
-# Response time logging
-# Application Performance Monitoring (APM)
-# Database query logging with timing
+# 响应时间日志
+# 应用性能监控 (APM)
+# 带时序的数据库查询日志
 
-# Simple timing
+# 简单计时
 console.time('db-query');
 const result = await db.query(...);
 console.timeEnd('db-query');
 ```
 
-### Where to Start Measuring
+### 从哪里开始度量
 
-Use the symptom to decide what to measure first:
+使用症状决定首先度量什么：
 
 ```
-What is slow?
-├── First page load
-│   ├── Large bundle? --> Measure bundle size, check code splitting
-│   ├── Slow server response? --> Measure TTFB, check API/database
-│   └── Render-blocking resources? --> Check network waterfall for CSS/JS blocking
-├── Interaction feels sluggish
-│   ├── UI freezes on click? --> Profile main thread, look for long tasks (>50ms)
-│   ├── Form input lag? --> Check re-renders, controlled component overhead
-│   └── Animation jank? --> Check layout thrashing, forced reflows
-├── Page after navigation
-│   ├── Data loading? --> Measure API response times, check for waterfalls
-│   └── Client rendering? --> Profile component render time, check for N+1 fetches
-└── Backend / API
-    ├── Single endpoint slow? --> Profile database queries, check indexes
-    ├── All endpoints slow? --> Check connection pool, memory, CPU
-    └── Intermittent slowness? --> Check for lock contention, GC pauses, external deps
+什么慢？
+├── 首次页面加载
+│   ├── 大包？--> 度量包大小，检查代码分割
+│   ├── 服务器响应慢？--> 度量 TTFB，检查 API/数据库
+│   └── 渲染阻塞资源？--> 检查 CSS/JS 阻塞的网络瀑布
+├── 交互感觉迟钝
+│   ├── 点击时 UI 冻结？--> 分析主线程，查找长任务 (>50ms)
+│   ├── 表单输入延迟？--> 检查重新渲染、受控组件开销
+│   └── 动画卡顿？--> 检查布局抖动、强制重排
+├── 导航后页面
+│   ├── 数据加载？--> 度量 API 响应时间，检查瀑布
+│   └── 客户端渲染？--> 分析组件渲染时间，检查 N+1 获取
+└── 后端 / API
+    ├── 单个端点慢？--> 分析数据库查询，检查索引
+    ├── 所有端点慢？--> 检查连接池、内存、CPU
+    └── 间歇性慢？--> 检查锁争用、GC 暂停、外部依赖
 ```
 
-### Step 2: Identify the Bottleneck
+### 步骤 2：识别瓶颈
 
-Common bottlenecks by category:
+按类别列出常见瓶颈：
 
-**Frontend:**
+**前端：**
 
-| Symptom | Likely Cause | Investigation |
-|---------|-------------|---------------|
-| Slow LCP | Large images, render-blocking resources, slow server | Check network waterfall, image sizes |
-| High CLS | Images without dimensions, late-loading content, font shifts | Check layout shift attribution |
-| Poor INP | Heavy JavaScript on main thread, large DOM updates | Check long tasks in Performance trace |
-| Slow initial load | Large bundle, many network requests | Check bundle size, code splitting |
+| 症状 | 可能原因 | 调查 |
+|------|----------|------|
+| LCP 慢 | 大图像、渲染阻塞资源、服务器慢 | 检查网络瀑布、图像大小 |
+| CLS 高 | 无尺寸的图像、延迟加载内容、字体偏移 | 检查布局偏移归因 |
+| INP 差 | 主线程上繁重的 JavaScript、大 DOM 更新 | 检查性能跟踪中的长任务 |
+| 初始加载慢 | 大包、许多网络请求 | 检查包大小、代码分割 |
 
-**Backend:**
+**后端：**
 
-| Symptom | Likely Cause | Investigation |
-|---------|-------------|---------------|
-| Slow API responses | N+1 queries, missing indexes, unoptimized queries | Check database query log |
-| Memory growth | Leaked references, unbounded caches, large payloads | Heap snapshot analysis |
-| CPU spikes | Synchronous heavy computation, regex backtracking | CPU profiling |
-| High latency | Missing caching, redundant computation, network hops | Trace requests through the stack |
+| 症状 | 可能原因 | 调查 |
+|------|----------|------|
+| API 响应慢 | N+1 查询、缺少索引、未优化的查询 | 检查数据库查询日志 |
+| 内存增长 | 泄漏的引用、无界缓存、大有效负载 | 堆快照分析 |
+| CPU 峰值 | 同步繁重计算、正则表达式回溯 | CPU 分析 |
+| 高延迟 | 缺少缓存、冗余计算、网络跳转 | 跟踪请求通过堆栈 |
 
-### Step 3: Fix Common Anti-Patterns
+### 步骤 3：修复常见反模式
 
-#### N+1 Queries (Backend)
+#### N+1 查询（后端）
 
 ```typescript
-// BAD: N+1 — one query per task for the owner
+// 坏：N+1 — 每个任务一个查询获取所有者
 const tasks = await db.tasks.findMany();
 for (const task of tasks) {
   task.owner = await db.users.findUnique({ where: { id: task.ownerId } });
 }
 
-// GOOD: Single query with join/include
+// 好：带 join/include 的单个查询
 const tasks = await db.tasks.findMany({
   include: { owner: true },
 });
 ```
 
-#### Unbounded Data Fetching
+#### 无界数据获取
 
 ```typescript
-// BAD: Fetching all records
+// 坏：获取所有记录
 const allTasks = await db.tasks.findMany();
 
-// GOOD: Paginated with limits
+// 好：带限制的分页
 const tasks = await db.tasks.findMany({
   take: 20,
   skip: (page - 1) * 20,
@@ -141,13 +141,13 @@ const tasks = await db.tasks.findMany({
 });
 ```
 
-#### Missing Image Optimization (Frontend)
+#### 缺少图像优化（前端）
 
 ```html
-<!-- BAD: No dimensions, no lazy loading, no responsive sizes -->
+<!-- 坏：无尺寸、无延迟加载、无响应式尺寸 -->
 <img src="/hero.jpg" />
 
-<!-- GOOD: Responsive, lazy-loaded, properly sized -->
+<!-- 好：响应式、延迟加载、适当尺寸 -->
 <img
   src="/hero.jpg"
   srcset="/hero-400.webp 400w, /hero-800.webp 800w, /hero-1200.webp 1200w"
@@ -155,54 +155,54 @@ const tasks = await db.tasks.findMany({
   width="1200"
   height="600"
   loading="lazy"
-  alt="Hero image description"
+  alt="Hero 图像描述"
 />
 ```
 
-#### Unnecessary Re-renders (React)
+#### 不必要的重新渲染（React）
 
 ```tsx
-// BAD: Creates new object on every render, causing children to re-render
+// 坏：每次渲染创建新对象，导致子组件重新渲染
 function TaskList() {
   return <TaskFilters options={{ sortBy: 'date', order: 'desc' }} />;
 }
 
-// GOOD: Stable reference
+// 好：稳定引用
 const DEFAULT_OPTIONS = { sortBy: 'date', order: 'desc' } as const;
 function TaskList() {
   return <TaskFilters options={DEFAULT_OPTIONS} />;
 }
 
-// Use React.memo for expensive components
+// 对昂贵组件使用 React.memo
 const TaskItem = React.memo(function TaskItem({ task }: Props) {
-  return <div>{/* expensive render */}</div>;
+  return <div>{/* 昂贵渲染 */}</div>;
 });
 
-// Use useMemo for expensive computations
+// 对昂贵计算使用 useMemo
 function TaskStats({ tasks }: Props) {
   const stats = useMemo(() => calculateStats(tasks), [tasks]);
   return <div>{stats.completed} / {stats.total}</div>;
 }
 ```
 
-#### Large Bundle Size
+#### 大包大小
 
 ```typescript
-// BAD: Importing entire library
+// 坏：导入整个库
 import { format } from 'date-fns';
 
-// GOOD: Tree-shakable import (if the library supports it)
+// 好：树摇导入（如果库支持）
 import { format } from 'date-fns/format';
 
-// GOOD: Dynamic import for heavy, rarely-used features
+// 好：对繁重、很少使用的功能动态导入
 const ChartLibrary = lazy(() => import('./ChartLibrary'));
 ```
 
-#### Missing Caching (Backend)
+#### 缺少缓存（后端）
 
 ```typescript
-// Cache frequently-read, rarely-changed data
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+// 缓存频繁读取、很少更改的数据
+const CACHE_TTL = 5 * 60 * 1000; // 5 分钟
 let cachedConfig: AppConfig | null = null;
 let cacheExpiry = 0;
 
@@ -215,67 +215,67 @@ async function getAppConfig(): Promise<AppConfig> {
   return cachedConfig;
 }
 
-// HTTP caching headers for static assets
+// 静态资源的 HTTP 缓存头部
 app.use('/static', express.static('public', {
-  maxAge: '1y',           // Cache for 1 year
-  immutable: true,        // Never revalidate (use content hashing in filenames)
+  maxAge: '1y',           // 缓存 1 年
+  immutable: true,        // 永不重新验证（在文件名中使用内容哈希）
 }));
 
-// Cache-Control for API responses
-res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
+// API 响应的 Cache-Control
+res.set('Cache-Control', 'public, max-age=300'); // 5 分钟
 ```
 
-## Performance Budget
+## 性能预算
 
-Set budgets and enforce them:
+设置预算并强制执行：
 
 ```
-JavaScript bundle: < 200KB gzipped (initial load)
-CSS: < 50KB gzipped
-Images: < 200KB per image (above the fold)
-Fonts: < 100KB total
-API response time: < 200ms (p95)
-Time to Interactive: < 3.5s on 4G
-Lighthouse Performance score: ≥ 90
+JavaScript 包：< 200KB gzipped（初始加载）
+CSS：< 50KB gzipped
+图像：< 200KB 每张（首屏）
+字体：< 100KB 总计
+API 响应时间：< 200ms (p95)
+可交互时间：4G 上 < 3.5s
+Lighthouse 性能分数：≥ 90
 ```
 
-**Enforce in CI:**
+**在 CI 中强制执行：**
 ```bash
-# Bundle size check
+# 包大小检查
 npx bundlesize --config bundlesize.config.json
 
 # Lighthouse CI
 npx lhci autorun
 ```
 
-## Common Rationalizations
+## 常见误解
 
-| Rationalization | Reality |
-|---|---|
-| "We'll optimize later" | Performance debt compounds. Fix obvious anti-patterns now, defer micro-optimizations. |
-| "It's fast on my machine" | Your machine isn't the user's. Profile on representative hardware and networks. |
-| "This optimization is obvious" | If you didn't measure, you don't know. Profile first. |
-| "Users won't notice 100ms" | Research shows 100ms delays impact conversion rates. Users notice more than you think. |
-| "The framework handles performance" | Frameworks prevent some issues but can't fix N+1 queries or oversized bundles. |
+| 误解 | 现实 |
+|------|------|
+| "我们稍后优化" | 性能债务会复合。现在修复明显的反模式，推迟微优化。 |
+| "在我的机器上很快" | 你的机器不是用户的。在代表性硬件和网络上分析。 |
+| "这个优化很明显" | 如果你没有度量，你就不知道。先分析。 |
+| "用户不会注意到 100ms" | 研究表明 100ms 延迟会影响转化率。用户注意到的比你想象的多。 |
+| "框架处理性能" | 框架防止某些问题但不能修复 N+1 查询或超大包。 |
 
-## Red Flags
+## 红旗
 
-- Optimization without profiling data to justify it
-- N+1 query patterns in data fetching
-- List endpoints without pagination
-- Images without dimensions, lazy loading, or responsive sizes
-- Bundle size growing without review
-- No performance monitoring in production
-- `React.memo` and `useMemo` everywhere (overusing is as bad as underusing)
+- 没有分析数据支持的优化
+- 数据获取中的 N+1 查询模式
+- 没有分页的列表端点
+- 没有尺寸、延迟加载或响应式尺寸的图像
+- 包大小增长没有审查
+- 生产中没有性能监控
+- 到处使用 `React.memo` 和 `useMemo`（过度使用和不足一样糟糕）
 
-## Verification
+## 验证
 
-After any performance-related change:
+任何性能相关变更后：
 
-- [ ] Before and after measurements exist (specific numbers)
-- [ ] The specific bottleneck is identified and addressed
-- [ ] Core Web Vitals are within "Good" thresholds
-- [ ] Bundle size hasn't increased significantly
-- [ ] No N+1 queries in new data fetching code
-- [ ] Performance budget passes in CI (if configured)
-- [ ] Existing tests still pass (optimization didn't break behavior)
+- [ ] 存在前后度量（具体数字）
+- [ ] 识别并解决了特定瓶颈
+- [ ] Core Web Vitals 在"良好"阈值内
+- [ ] 包大小没有显著增加
+- [ ] 新数据获取代码中没有 N+1 查询
+- [ ] 性能预算在 CI 中通过（如果配置）
+- [ ] 现有测试仍然通过（优化没有破坏行为）

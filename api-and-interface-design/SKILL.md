@@ -1,21 +1,21 @@
 ---
 name: API与接口设计
-description: Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.
+description: 指导稳定的 API 和接口设计。适用于设计 API、模块边界或任何公共接口。适用于创建 REST 或 GraphQL 端点、定义模块间类型契约或建立前后端边界。
 ---
 
-# API and Interface Design
+# API与接口设计
 
-Design stable, well-documented interfaces that are hard to misuse. Good interfaces make the right thing easy and the wrong thing hard.
+设计稳定、文档完善、难以误用的接口。好的接口让正确的事情容易做，错误的事情难以做。
 
-## When to Use
+## 何时使用
 
-- Designing new API endpoints
-- Defining module boundaries or contracts between teams
-- Creating component prop interfaces
-- Establishing database schema that informs API shape
-- Changing existing public interfaces
+- 设计新的 API 端点
+- 定义模块边界或团队间契约
+- 创建组件 prop 接口
+- 建立影响 API 形状的数据库模式
+- 更改现有公共接口
 
-## Rules Index
+## 规则索引
 
 本 skill 包含以下规则文件，按需加载：
 
@@ -27,134 +27,72 @@ Design stable, well-documented interfaces that are hard to misuse. Good interfac
 | `rules/versioning.md` | 版本控制策略与向后兼容 | 涉及版本管理或破坏性变更时读 |
 | `rules/graphql-design.md` | GraphQL Schema 设计规则 | 涉及 GraphQL API 设计时读 |
 
-## Core Principles
+## 核心原则
 
-### Hyrum's Law
+### Hyrum 定律
 
-> With a sufficient number of users of an API, all observable behaviors of your system will be depended on by somebody, regardless of what you promise in the contract.
+> 当 API 有足够多的用户时，系统的所有可观察行为都会被依赖，无论你在契约中承诺了什么。
 
-Every public behavior — including undocumented quirks, error message text, timing, and ordering — becomes a de facto contract once users depend on it.
+每个公共行为——包括未记录的怪癖、错误消息文本、时序和排序——一旦用户依赖它，就成为事实上的契约。
 
-### The One-Version Rule
+### 单版本规则
 
-Avoid forcing consumers to choose between multiple versions of the same dependency. Design for a world where only one version exists at a time — extend rather than fork.
+避免强制消费者在多个版本的同一依赖之间做出选择。设计为只有一个版本存在的世界——扩展而不是分叉。
 
-### 1. Contract First
+### 1. 契约优先
 
-Define the interface before implementing it. The contract is the spec — implementation follows.
+在实现之前定义接口。契约是规范——实现随之而来。
 
-```typescript
-interface TaskAPI {
-  createTask(input: CreateTaskInput): Promise<Task>;
-  listTasks(params: ListTasksParams): Promise<PaginatedResult<Task>>;
-  getTask(id: string): Promise<Task>;
-  updateTask(id: string, input: UpdateTaskInput): Promise<Task>;
-  deleteTask(id: string): Promise<void>;
-}
-```
+### 2. 一致的错误语义
 
-### 2. Consistent Error Semantics
+选择一种错误策略并在所有地方使用。完整的错误响应结构和状态码映射见 `rules/error-patterns.md`。
 
-Pick one error strategy and use it everywhere. See `rules/error-patterns.md` for full error response structure and status code mapping.
+### 3. 在边界处验证
 
-### 3. Validate at Boundaries
+信任内部代码。在系统边缘验证外部输入。
 
-Trust internal code. Validate at system edges where external input enters:
+### 4. 优先添加而非修改
 
-```typescript
-app.post('/api/tasks', async (req, res) => {
-  const result = CreateTaskSchema.safeParse(req.body);
-  if (!result.success) {
-    return res.status(422).json({
-      error: { code: 'VALIDATION_ERROR', message: 'Invalid task data', details: result.error.flatten() },
-    });
-  }
-  const task = await taskService.create(result.data);
-  return res.status(201).json(task);
-});
-```
+在不破坏现有消费者的情况下扩展接口——添加可选字段，而不是必需字段。
 
-### 4. Prefer Addition Over Modification
+### 5. 可预测的命名
 
-Extend interfaces without breaking existing consumers — add optional fields, not required ones.
+| 模式 | 约定 | 示例 |
+|------|------|------|
+| REST 端点 | 复数名词，无动词 | `GET /api/tasks` |
+| 查询参数 | camelCase | `?sortBy=createdAt` |
+| 响应字段 | camelCase | `{ createdAt, updatedAt }` |
+| 布尔字段 | is/has/can 前缀 | `isComplete`, `hasAttachments` |
+| 枚举值 | UPPER_SNAKE | `"IN_PROGRESS"` |
 
-### 5. Predictable Naming
+## 常见误解
 
-| Pattern | Convention | Example |
-|---------|-----------|---------|
-| REST endpoints | Plural nouns, no verbs | `GET /api/tasks` |
-| Query params | camelCase | `?sortBy=createdAt` |
-| Response fields | camelCase | `{ createdAt, updatedAt }` |
-| Boolean fields | is/has/can prefix | `isComplete`, `hasAttachments` |
-| Enum values | UPPER_SNAKE | `"IN_PROGRESS"` |
+| 误解 | 现实 |
+|------|------|
+| "我们稍后再记录 API" | 类型就是文档。先定义它们。 |
+| "PATCH 很复杂，我们直接用 PUT" | PUT 需要完整对象。PATCH 才是客户端想要的。 |
+| "我们会在需要时对 API 进行版本控制" | 没有版本控制的破坏性变更会破坏消费者。 |
+| "没人使用那个未记录的行为" | Hyrum 定律：如果它是可观察的，就有人依赖它。 |
+| "内部 API 不需要契约" | 内部消费者仍然是消费者。 |
 
-## REST API Patterns
+## 红旗
 
-### Resource Design
+- 端点根据条件返回不同形状
+- 端点间错误格式不一致
+- 验证分散在内部代码中
+- 对现有字段进行破坏性变更
+- 列表端点没有分页
+- REST URL 中包含动词（`/api/createTask`）
+- 使用第三方 API 响应而不进行验证
 
-```
-GET    /api/tasks              → List tasks
-POST   /api/tasks              → Create a task
-GET    /api/tasks/:id          → Get a single task
-PATCH  /api/tasks/:id          → Update a task (partial)
-DELETE /api/tasks/:id          → Delete a task
-```
+## 验证
 
-See `rules/rest-conventions.md` for detailed HTTP method semantics, status codes, Header规范, and URL设计.
+设计 API 后：
 
-## TypeScript Interface Patterns
-
-### Discriminated Unions
-
-```typescript
-type TaskStatus =
-  | { type: 'pending' }
-  | { type: 'in_progress'; assignee: string }
-  | { type: 'completed'; completedAt: Date };
-```
-
-### Input/Output Separation
-
-```typescript
-interface CreateTaskInput { title: string; description?: string; }
-interface Task { id: string; title: string; createdAt: Date; updatedAt: Date; }
-```
-
-### Branded Types for IDs
-
-```typescript
-type TaskId = string & { readonly __brand: 'TaskId' };
-type UserId = string & { readonly __brand: 'UserId' };
-```
-
-## Common Rationalizations
-
-| Rationalization | Reality |
-|---|---|
-| "We'll document the API later" | The types ARE the documentation. Define them first. |
-| "PATCH is complicated, let's just use PUT" | PUT requires the full object. PATCH is what clients want. |
-| "We'll version the API when we need to" | Breaking changes without versioning break consumers. |
-| "Nobody uses that undocumented behavior" | Hyrum's Law: if it's observable, somebody depends on it. |
-| "Internal APIs don't need contracts" | Internal consumers are still consumers. |
-
-## Red Flags
-
-- Endpoints that return different shapes depending on conditions
-- Inconsistent error formats across endpoints
-- Validation scattered throughout internal code
-- Breaking changes to existing fields
-- List endpoints without pagination
-- Verbs in REST URLs (`/api/createTask`)
-- Third-party API responses used without validation
-
-## Verification
-
-After designing an API:
-
-- [ ] Every endpoint has typed input and output schemas
-- [ ] Error responses follow a single consistent format
-- [ ] Validation happens at system boundaries only
-- [ ] List endpoints support pagination
-- [ ] New fields are additive and optional
-- [ ] Naming follows consistent conventions
-- [ ] API documentation or types are committed alongside the implementation
+- [ ] 每个端点都有类型化的输入和输出模式
+- [ ] 错误响应遵循单一一致格式
+- [ ] 验证仅在系统边界处进行
+- [ ] 列表端点支持分页
+- [ ] 新字段是可选且可添加的
+- [ ] 命名遵循一致的约定
+- [ ] API 文档或类型与实现一起提交

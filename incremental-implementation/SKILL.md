@@ -1,241 +1,237 @@
 ---
 name: 增量实现
-description: Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: 增量交付变更。适用于实现任何涉及多个文件的功能或变更。适用于即将一次性编写大量代码或任务感觉太大无法一步完成时。
 ---
 
-# Incremental Implementation
+# 增量实现
 
-## Overview
+## 概述
 
-Build in thin vertical slices — implement one piece, test it, verify it, then expand. Avoid implementing an entire feature in one pass. Each increment should leave the system in a working, testable state. This is the execution discipline that makes large features manageable.
+使用薄垂直切片构建——实现一个部分，测试它，验证它，然后扩展。避免一次性实现整个功能。每个增量都应使系统处于可工作、可测试的状态。这是使大型功能可管理的执行纪律。
 
-## When to Use
+## 何时使用
 
-- Implementing any multi-file change
-- Building a new feature from a task breakdown
-- Refactoring existing code
-- Any time you're tempted to write more than ~100 lines before testing
+- 实现任何多文件变更
+- 从任务分解构建新功能
+- 重构现有代码
+- 任何时候你tempted 在测试前编写超过约 100 行代码
 
-**When NOT to use:** Single-file, single-function changes where the scope is already minimal.
+**何时不使用：** 范围已最小化的单文件、单函数变更。
 
-## The Increment Cycle
+## 增量循环
 
 ```
 ┌──────────────────────────────────────┐
 │                                      │
-│   Implement ──→ Test ──→ Verify ──┐  │
-│       ▲                           │  │
-│       └───── Commit ◄─────────────┘  │
+│   实现 ──→ 测试 ──→ 验证 ──┐        │
+│       ▲                     │        │
+│       └───── 提交 ◄─────────┘        │
 │              │                       │
 │              ▼                       │
-│          Next slice                  │
+│          下一个切片                  │
 │                                      │
 └──────────────────────────────────────┘
 ```
 
-For each slice:
+对于每个切片：
+1. **实现** 最小的完整功能部分
+2. **测试** — 运行测试套件（如果没有则编写测试）
+3. **验证** — 确认切片按预期工作（测试通过、构建成功、手动检查）
+4. **提交** — 使用描述性消息保存进度（有关原子提交指南，请参阅 `git-workflow-and-versioning`）
+5. **移动到下一个切片** — 向前推进，不要重新开始
 
-1. **Implement** the smallest complete piece of functionality
-2. **Test** — run the test suite (or write a test if none exists)
-3. **Verify** — confirm the slice works as expected (tests pass, build succeeds, manual check)
-4. **Commit** -- save your progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance)
-5. **Move to the next slice** — carry forward, don't restart
+## 切片策略
 
-## Slicing Strategies
+### 垂直切片（首选）
 
-### Vertical Slices (Preferred)
-
-Build one complete path through the stack:
-
-```
-Slice 1: Create a task (DB + API + basic UI)
-    → Tests pass, user can create a task via the UI
-
-Slice 2: List tasks (query + API + UI)
-    → Tests pass, user can see their tasks
-
-Slice 3: Edit a task (update + API + UI)
-    → Tests pass, user can modify tasks
-
-Slice 4: Delete a task (delete + API + UI + confirmation)
-    → Tests pass, full CRUD complete
-```
-
-Each slice delivers working end-to-end functionality.
-
-### Contract-First Slicing
-
-When backend and frontend need to develop in parallel:
+构建通过堆栈的完整路径：
 
 ```
-Slice 0: Define the API contract (types, interfaces, OpenAPI spec)
-Slice 1a: Implement backend against the contract + API tests
-Slice 1b: Implement frontend against mock data matching the contract
-Slice 2: Integrate and test end-to-end
+切片 1：创建任务（数据库 + API + 基本 UI）
+    → 测试通过，用户可以通过 UI 创建任务
+
+切片 2：列出任务（查询 + API + UI）
+    → 测试通过，用户可以看到他们的任务
+
+切片 3：编辑任务（更新 + API + UI）
+    → 测试通过，用户可以修改任务
+
+切片 4：删除任务（删除 + API + UI + 确认）
+    → 测试通过，完整 CRUD 完成
 ```
 
-### Risk-First Slicing
+每个切片都提供可工作的端到端功能。
 
-Tackle the riskiest or most uncertain piece first:
+### 契约优先切片
 
-```
-Slice 1: Prove the WebSocket connection works (highest risk)
-Slice 2: Build real-time task updates on the proven connection
-Slice 3: Add offline support and reconnection
-```
-
-If Slice 1 fails, you discover it before investing in Slices 2 and 3.
-
-## Implementation Rules
-
-### Rule 0: Simplicity First
-
-Before writing any code, ask: "What is the simplest thing that could work?"
-
-After writing code, review it against these checks:
-- Can this be done in fewer lines?
-- Are these abstractions earning their complexity?
-- Would a staff engineer look at this and say "why didn't you just..."?
-- Am I building for hypothetical future requirements, or the current task?
+当后端和前端需要并行开发时：
 
 ```
-SIMPLICITY CHECK:
-✗ Generic EventBus with middleware pipeline for one notification
-✓ Simple function call
-
-✗ Abstract factory pattern for two similar components
-✓ Two straightforward components with shared utilities
-
-✗ Config-driven form builder for three forms
-✓ Three form components
+切片 0：定义 API 契约（类型、接口、OpenAPI 规范）
+切片 1a：根据契约实现后端 + API 测试
+切片 1b：根据匹配契约的模拟数据实现前端
+切片 2：集成并端到端测试
 ```
 
-Three similar lines of code is better than a premature abstraction. Implement the naive, obviously-correct version first. Optimize only after correctness is proven with tests.
+### 风险优先切片
 
-### Rule 0.5: Scope Discipline
-
-Touch only what the task requires.
-
-Do NOT:
-- "Clean up" code adjacent to your change
-- Refactor imports in files you're not modifying
-- Remove comments you don't fully understand
-- Add features not in the spec because they "seem useful"
-- Modernize syntax in files you're only reading
-
-If you notice something worth improving outside your task scope, note it — don't fix it:
+首先处理风险最大或最不确定的部分：
 
 ```
-NOTICED BUT NOT TOUCHING:
-- src/utils/format.ts has an unused import (unrelated to this task)
-- The auth middleware could use better error messages (separate task)
-→ Want me to create tasks for these?
+切片 1：证明 WebSocket 连接工作（最高风险）
+切片 2：在已验证的连接上构建实时任务更新
+切片 3：添加离线支持和重连
 ```
 
-### Rule 1: One Thing at a Time
+如果切片 1 失败，你在投资切片 2 和 3 之前就发现了它。
 
-Each increment changes one logical thing. Don't mix concerns:
+## 实现规则
 
-**Bad:** One commit that adds a new component, refactors an existing one, and updates the build config.
+### 规则 0：简单优先
 
-**Good:** Three separate commits — one for each change.
+在编写任何代码之前，问："最简单可行的东西是什么？"
 
-### Rule 2: Keep It Compilable
+编写代码后，根据这些检查审查它：
+- 这能否用更少的行完成？
+- 这些抽象是否值得它们带来的复杂度？
+- 一个 Staff Engineer 看到这里会不会说"为什么不直接这样做？"
+- 我是在为假设的未来需求构建，还是为当前任务？
 
-After each increment, the project must build and existing tests must pass. Don't leave the codebase in a broken state between slices.
+```
+简单性检查：
+✗ 一个通知的通用 EventBus 带中间件管道
+✓ 简单的函数调用
 
-### Rule 3: Feature Flags for Incomplete Features
+✗ 两个相似组件的抽象工厂模式
+✓ 两个带共享实用程序的直接组件
 
-If a feature isn't ready for users but you need to merge increments:
+✗ 三个表单的配置驱动表单构建器
+✓ 三个表单组件
+```
+
+三行相似的代码比过早抽象更好。实现天真的、明显正确的版本。仅在测试证明正确性后优化。
+
+### 规则 0.5：范围纪律
+
+只触及任务要求的内容。
+
+不要：
+- "清理"与你的更改相邻的代码
+- 重构你不修改的文件中的导入
+- 移除你不完全理解的注释
+- 添加规范中未提及的功能，因为它们"看起来有用"
+- 在你只读取的文件中现代化语法
+
+如果你注意到任务范围之外有值得改进的东西，记下来——不要修复它：
+
+```
+注意到但未触及：
+- src/utils/format.ts 有一个未使用的导入（与此任务无关）
+- 认证中间件可以使用更好的错误消息（单独任务）
+→ 要我为这些创建任务吗？
+```
+
+### 规则 1：一次一件事
+
+每个增量更改一个逻辑事情。不要混合关注点：
+
+**坏：** 一个提交添加新组件、重构现有组件并更新构建配置。
+
+**好：** 三个单独的提交——每个更改一个。
+
+### 规则 2：保持可编译
+
+每个增量后，项目必须构建且现有测试必须通过。不要在切片之间将代码库置于中断状态。
+
+### 规则 3：未完成功能的特性标志
+
+如果功能尚未准备好供用户使用但你需要合并增量：
 
 ```typescript
-// Feature flag for work-in-progress
+// 进行中工作的特性标志
 const ENABLE_TASK_SHARING = process.env.FEATURE_TASK_SHARING === 'true';
 
 if (ENABLE_TASK_SHARING) {
-  // New sharing UI
+  // 新共享 UI
 }
 ```
 
-This lets you merge small increments to the main branch without exposing incomplete work.
+这让你可以将小增量合并到主分支，而不暴露未完成的工作。
 
-### Rule 4: Safe Defaults
+### 规则 4：安全默认值
 
-New code should default to safe, conservative behavior:
+新代码应默认为安全、保守的行为：
 
 ```typescript
-// Safe: disabled by default, opt-in
+// 安全：默认禁用，选择加入
 export function createTask(data: TaskInput, options?: { notify?: boolean }) {
   const shouldNotify = options?.notify ?? false;
   // ...
 }
 ```
 
-### Rule 5: Rollback-Friendly
+### 规则 5：回滚友好
 
-Each increment should be independently revertable:
+每个增量应可独立回滚：
+- 添加性更改（新文件、新函数）易于回滚
+- 对现有代码的更改应最小且专注
+- 数据库迁移应有相应的回滚迁移
+- 避免在一个提交中删除某些东西并在同一提交中替换——将它们分开
 
-- Additive changes (new files, new functions) are easy to revert
-- Modifications to existing code should be minimal and focused
-- Database migrations should have corresponding rollback migrations
-- Avoid deleting something in one commit and replacing it in the same commit — separate them
+## 与 Agent 一起工作
 
-## Working with Agents
-
-When directing an agent to implement incrementally:
+当指导 agent 增量实现时：
 
 ```
-"Let's implement Task 3 from the plan.
+"让我们实现计划中的任务 3。
 
-Start with just the database schema change and the API endpoint.
-Don't touch the UI yet — we'll do that in the next increment.
+从数据库模式更改和 API 端点开始。
+现在不要触及 UI——我们将在下一个增量中做那个。
 
-After implementing, run `npm test` and `npm run build` to verify
-nothing is broken."
-```
+实现后，运行 `npm test` 和 `npm run build` 验证
+没有破坏任何东西。"
+``
 
-Be explicit about what's in scope and what's NOT in scope for each increment.
+对每个增量的内容范围和 NOT 内容范围明确。
 
-## Increment Checklist
+## 增量检查清单
 
-After each increment, verify:
+每个增量后，验证：
+- [ ] 更改做一件事并完全完成
+- [ ] 所有现有测试仍然通过（`npm test`）
+- [ ] 构建成功（`npm run build`）
+- [ ] 类型检查通过（`npx tsc --noEmit`）
+- [ ] Lint 通过（`npm run lint`）
+- [ ] 新功能按预期工作
+- [ ] 更改已提交并带有描述性消息
 
-- [ ] The change does one thing and does it completely
-- [ ] All existing tests still pass (`npm test`)
-- [ ] The build succeeds (`npm run build`)
-- [ ] Type checking passes (`npx tsc --noEmit`)
-- [ ] Linting passes (`npm run lint`)
-- [ ] The new functionality works as expected
-- [ ] The change is committed with a descriptive message
+## 常见误解
 
-## Common Rationalizations
+| 误解 | 现实 |
+|------|------|
+| "我会在最后测试所有内容" | Bug 会累积。切片 1 中的 bug 使切片 2-5 错误。测试每个切片。 |
+| "一次做完更快" | 它*感觉*更快，直到某些东西中断而你找不到 500 行更改中的哪一行导致它。 |
+| "这些更改太小了不能单独提交" | 小提交是免费的。大提交隐藏 bug 并使回滚痛苦。 |
+| "我稍后会添加特性标志" | 如果功能不完整，它不应该是用户可见的。现在添加标志。 |
+| "这个重构很小可以包含" | 与功能混合的重构使两者都更难审查和调试。将它们分开。 |
 
-| Rationalization | Reality |
-|---|---|
-| "I'll test it all at the end" | Bugs compound. A bug in Slice 1 makes Slices 2-5 wrong. Test each slice. |
-| "It's faster to do it all at once" | It *feels* faster until something breaks and you can't find which of 500 changed lines caused it. |
-| "These changes are too small to commit separately" | Small commits are free. Large commits hide bugs and make rollbacks painful. |
-| "I'll add the feature flag later" | If the feature isn't complete, it shouldn't be user-visible. Add the flag now. |
-| "This refactor is small enough to include" | Refactors mixed with features make both harder to review and debug. Separate them. |
+## 红旗
 
-## Red Flags
+- 编写超过 100 行代码而没有运行测试
+- 单个增量中多个不相关的更改
+- "让我也快速添加这个" 范围扩展
+- 跳过测试/验证步骤以加快速度
+- 增量之间构建或测试中断
+- 累积的大未提交更改
+- 在第三个用例要求之前构建抽象
+- "既然我在这里" 触及任务范围外的文件
+- 为一次性操作创建新的实用程序文件
 
-- More than 100 lines of code written without running tests
-- Multiple unrelated changes in a single increment
-- "Let me just quickly add this too" scope expansion
-- Skipping the test/verify step to move faster
-- Build or tests broken between increments
-- Large uncommitted changes accumulating
-- Building abstractions before the third use case demands it
-- Touching files outside the task scope "while I'm here"
-- Creating new utility files for one-time operations
+## 验证
 
-## Verification
-
-After completing all increments for a task:
-
-- [ ] Each increment was individually tested and committed
-- [ ] The full test suite passes
-- [ ] The build is clean
-- [ ] The feature works end-to-end as specified
-- [ ] No uncommitted changes remain
+完成任务的所有增量后：
+- [ ] 每个增量都经过单独测试和提交
+- [ ] 完整测试套件通过
+- [ ] 构建干净
+- [ ] 功能按规范端到端工作
+- [ ] 没有未提交的更改残留
