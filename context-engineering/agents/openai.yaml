@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "上下文工程"
+  short_description: "优化项目上下文、规则文件和 agent 工作环境"
+

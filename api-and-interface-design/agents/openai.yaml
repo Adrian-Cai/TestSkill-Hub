@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "API 与接口设计"
+  short_description: "设计稳定的 API、模块边界和前后端契约"
+

@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "CI/CD 与自动化"
+  short_description: "配置或改进构建、测试、部署和质量门禁自动化"
+

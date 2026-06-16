@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "规格驱动开发"
+  short_description: "在新功能或重大变更编码前澄清并编写规格说明"
+

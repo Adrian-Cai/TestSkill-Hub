@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "文档与决策记录"
+  short_description: "记录架构决策、公共 API 变更和工程上下文"
+

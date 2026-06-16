@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "测试驱动开发"
+  short_description: "用先写测试的方式实现功能、修复缺陷或修改行为"
+

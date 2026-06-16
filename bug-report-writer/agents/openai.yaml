@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "Bug 单生成器"
+  short_description: "根据缺陷现象整理规范 Bug 单、复现步骤和风险信息"
+

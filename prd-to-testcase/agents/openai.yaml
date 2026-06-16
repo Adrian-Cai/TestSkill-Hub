@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "通用测试用例设计生成器"
+  short_description: "根据需求、接口、页面或代码变更生成测试分析和用例"
+

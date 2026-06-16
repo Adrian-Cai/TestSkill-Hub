@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "增量实现"
+  short_description: "将多文件或较大改动拆成可验证的小步交付"
+

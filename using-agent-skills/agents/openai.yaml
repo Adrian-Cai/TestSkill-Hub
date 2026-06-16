@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "使用 Agent 技能"
+  short_description: "发现、选择并调用适合当前任务的 agent 技能"
+

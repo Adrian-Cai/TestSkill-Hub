@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "调试与错误恢复"
+  short_description: "系统化复现、定位并修复测试、构建或运行时问题"
+

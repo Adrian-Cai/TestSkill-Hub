@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "接口测试用例生成器"
+  short_description: "根据接口文档生成覆盖正常、边界、异常和鉴权场景的测试用例"
+

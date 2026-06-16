@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "测试报告生成器"
+  short_description: "根据测试结果、Bug 和遗留问题生成版本质量报告"
+

@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "Git 工作流与版本管理"
+  short_description: "组织分支、提交、冲突处理和版本管理流程"
+

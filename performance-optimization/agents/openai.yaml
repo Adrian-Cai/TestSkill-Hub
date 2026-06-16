@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "性能优化"
+  short_description: "分析并优化加载速度、运行性能和核心 Web 指标"
+

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公众号富文本复制器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f1f7ff;
+            color: #334155;
+        }
+        /* 顶部工具栏样式 */
+        .toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: #0f2a5f;
+            display: table;
+            width: 100%;
+            z-index: 9999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 0 20px;
+        }
+        .toolbar-cell-left {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: left;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .toolbar-cell-right {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: right;
+        }
+        .btn-copy {
+            background-color: #14b8a6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-copy:hover {
+            background-color: #0d9488;
+        }
+        .hint-text {
+            color: #93c5fd;
+            font-size: 12px;
+            margin-right: 15px;
+            font-weight: normal;
+        }
+        /* 主体容器 */
+        .main-container {
+            margin-top: 90px;
+            margin-bottom: 50px;
+            padding: 0 15px;
+        }
+        /* 提示弹窗 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1e293b;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 10000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部工具栏 -->
+    <div class="toolbar">
+        <div class="toolbar-cell-left">
+            公众号富文本复制器
+        </div>
+        <div class="toolbar-cell-right">
+            <span class="hint-text">点击右侧按钮后粘贴到公众号后台</span>
+            <button class="btn-copy" onclick="copyWechatContent()">复制富文本</button>
+        </div>
+    </div>
+
+    <!-- 提示通知弹窗 -->
+    <div id="toastNotification" class="toast">已复制，可直接粘贴到公众号后台</div>
+
+    <!-- 主体内容 -->
+    <div class="main-container">
+        <article id="wechatArticle" style="max-width:760px; margin:0 auto; background:#ffffff; padding:20px; border-radius:12px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); font-family:-apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif; -webkit-font-smoothing:antialiased;">
+            
+            <!-- 封面标题卡 -->
+            <section style="margin:10px 0 30px 0; padding:0 0 20px 0; border-bottom:2px solid #dbeafe; text-align:left;">
+                <h1 style="font-size:24px; line-height:1.4; color:#0f2a5f; margin:0 0 10px 0; font-weight:bold;">别再盲目调优提示词了！测试工程化分水岭：从 Prompt 到 Skills 的思维跃迁</h1>
+                <p style="font-size:14px; color:#14b8a6; margin:0; font-weight:500;">解构软件测试在 AI 时代的工程化落地路径与资产沉淀方法论</p>
+            </section>
+
+            <!-- 开头核心观点卡 -->
+            <section style="margin:20px 0; padding:20px; background-color:#f1f7ff; border-left:5px solid #0f2a5f; border-radius:4px 8px 8px 4px;">
+                <p style="margin:0; font-size:15px; line-height:1.9; color:#0f2a5f; font-weight:bold;">💡 核心思考：</p>
+                <p style="margin:8px 0 0 0; font-size:15px; line-height:1.9; color:#334155;">在上一篇文章中，我们深入讨论了一个核心问题：为什么 Prompt 需要代码化管理。但如果我们沿着这条技术路线继续推进，就会撞上一个更为本质的矛盾：在测试工程里，我们真正需要的到底是去不停“写 Prompt”，还是在构建一套“可复用的工程能力模块”？</p>
+            </section>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;">当前，大模型被引入测试体系后，多数团队依然停留在初级阶段：不断优化 Prompt 文本本身。然而，现实的研发痛点非常明显：同一个测试任务每次都要重写、不同人员输出不一致、无法纳入 CI/CD 流水线，更无法规模化复用。</p>
+            
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0; font-weight:bold;">问题的本质并不是我们的 Prompt 写得不够好，而是——我们正试图用“文本工具”去承载“工程能力”。</p>
+            
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;">于是，一个更契合质量工程体系的抽象层出现了：<span style="color:#0f2a5f; font-weight:bold;">Skills（能力模块化）</span>。</p>
+
+            <!-- 一级标题 -->
+            <section style="margin:35px 0 20px 0; padding-left:12px; border-left:4px solid #14b8a6;">
+                <h2 style="font-size:18px; line-height:1.4; color:#0f2a5f; margin:0; font-weight:bold;">一、 降维打击：Prompt 承载测试能力的结构性缺陷</h2>
+            </section>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;">在真实测试场景中，“持续优化提示词文本”看似是一件政治正确的事，但从软件工程的角度来看，它天然存在三个难以逾越的结构性缺陷：</p>
+
+            <!-- 列表组件 -->
+            <section style="margin:18px 0; padding-left:10px;">
+                <p style="font-size:15px; line-height:2.0; color:#334155; margin:8px 0;"><strong style="color:#0f2a5f;">1. 天然缺乏工程属性：</strong> Prompt 契合的是“一次输入 → 一次输出”的交互，而测试任务本质是高频重复、多人协作、跨多环境执行的流式任务。</p>
+                <p style="font-size:15px; line-height:2.0; color:#334155; margin:8px 0;"><strong style="color:#0f2a5f;">2. 缺乏输入输出结构约束：</strong> 类似“帮我分析这个接口失败问题”的指令没有定义边界。输入模糊、输出不稳，导致结果不可评估、不可对比。</p>
+                <p style="font-size:15px; line-height:2.0; color:#334155; margin:8px 0;"><strong style="color:#0f2a5f;">3. 无法平滑融入工程体系：</strong> 在现代质量体系中，我们需要版本管理、回归验证、自动化质量门禁和 CI/CD。纯文本的 Prompt 根本无法与这些组件原生组装。</p>
+            </section>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0; background-color:#fff1f2; border:1px solid #fda4af; padding:12px 16px; border-radius:8px; color:#9f1239;">
+                ⚠️ <strong>结论：</strong> Prompt 适合人机交互，但绝对不适合作为“工程化测试能力”的最终表达。
+            </p>
+
+            <!-- 一级标题 -->
+            <section style="margin:35px 0 20px 0; padding-left:12px; border-left:4px solid #14b8a6;">
+                <h2 style="font-size:18px; line-height:1.4; color:#0f2a5f; margin:0; font-weight:bold;">二、 什么是 Skills：把 AI 封装为高复用的“测试专家”</h2>
+            </section>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;"><strong>Prompt 是一句话，而 Skill 是一个行业专家。</strong> 这是工程化过程中最重要的一种思维转变。</p>
+
+            <!-- 重点引用卡 -->
+            <section style="margin:22px 0; padding:18px; background-color:#fafafa; border:1px solid #dbeafe; border-radius:8px; text-align:left;">
+                <p style="margin:0; font-size:15px; line-height:1.9; color:#0f2a5f; font-weight:bold;">💡 角色隐喻：</p>
+                <p style="margin:6px 0 0 0; font-size:14px; line-height:1.8; color:#475569;">你写一条 Prompt 叫“帮我生成测试用例”，就像每天在给新手实习生下具体命令。而构建一个 Skill，则像是在测试团队里直接招聘了一位长期训练好的<strong>资深设计专家</strong>。你只需要把原始需求丢给他，不需要每次重新去向他解释：你是谁、你该怎么分析、你的输出格式是什么。</p>
+            </section>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;">为了让 AI 核心能力无缝进入自动化体系，我们需要将能力模块化。一个标准的、工业级的测试 Skill 至少包含以下四个核心契约部分：</p>
+
+            <!-- 伪表格卡片 -->
+            <section style="margin:20px 0; border:1px solid #dbeafe; border-radius:8px; overflow:hidden;">
+                <!-- 表头 -->
+                <section style="background-color:#0f2a5f; padding:12px 16px; display:table; width:100%;">
+                    <div style="display:table-cell; width:30%; color:#ffffff; font-size:14px; font-weight:bold;">核心组件</div>
+                    <div style="display:table-cell; width:70%; color:#ffffff; font-size:14px; font-weight:bold;">工程定义与职责</div>
+                </section>
+                <!-- 行1 -->
+                <section style="background-color:#ffffff; padding:12px 16px; border-bottom:1px solid #dbeafe; display:table; width:100%;">
+                    <div style="display:table-cell; width:30%; font-size:14px; color:#0f2a5f; font-weight:bold; vertical-align:top;">1. Input 契约</div>
+                    <div style="display:table-cell; width:70%; font-size:14px; color:#334155; line-height:1.6;">明确数据边界。拒绝模糊文本，严格限定为结构化对象，例如：系统日志流、代码 Diff 段、标准 API 载荷。</div>
+                </section>
+                <!-- 行2 -->
+                <section style="background-color:#f8fbff; padding:12px 16px; border-bottom:1px solid #dbeafe; display:table; width:100%;">
+                    <div style="display:table-cell; width:30%; font-size:14px; color:#0f2a5f; font-weight:bold; vertical-align:top;">2. Context 约束</div>
+                    <div style="display:table-cell; width:70%; font-size:14px; color:#334155; line-height:1.6;">定义分析环境上下文。包含下游微服务拓扑关系（dependency_map）、测试阶段（冒烟/回归）及环境标识（Staging/Prod-like）。</div>
+                </section>
+                <!-- 行3 -->
+                <section style="background-color:#ffffff; padding:12px 16px; border-bottom:1px solid #dbeafe; display:table; width:100%;">
+                    <div style="display:table-cell; width:30%; font-size:14px; color:#0f2a5f; font-weight:bold; vertical-align:top;">3. Logic 推理策略</div>
+                    <div style="display:table-cell; width:70%; font-size:14px; color:#334155; line-height:1.6;">限定 AI 的思考模型路径。约束其必须按照特定的质量工程策略思考：错误分类 → 链路归因 → 风险识别，阻止其“自由发挥”。</div>
+                </section>
+                <!-- 行4 -->
+                <section style="background-color:#f8fbff; padding:12px 16px; display:table; width:100%;">
+                    <div style="display:table-cell; width:30%; font-size:14px; color:#0f2a5f; font-weight:bold; vertical-align:top;">4. Output 规范</div>
+                    <div style="display:table-cell; width:70%; font-size:14px; color:#334155; line-height:1.6;">定义强校验的结果结构。强制输出特定的 JSON 字段：root_cause、影响范围、风险等级、修复建议、置信度得分，以便流水线解析。</div>
+                </section>
+            </section>
+
+            <!-- 核心定义公式 -->
+            <p style="margin:20px 0; padding:14px; text-align:center; background-color:#f1f7ff; border:1px dashed #14b8a6; border-radius:8px; font-size:15px; color:#0f2a5f; font-weight:bold;">
+                ⚡ Skills = Prompt + 输入输出结构定义 + 确定性推理约束 + 可复用工程封装
+            </p>
+
+            <!-- 一级标题 -->
+            <section style="margin:35px 0 20px 0; padding-left:12px; border-left:4px solid #14b8a6;">
+                <h2 style="font-size:18px; line-height:1.4; color:#0f2a5f; margin:0; font-weight:bold;">三、 一次工程思维的跃迁：Prompt vs Skills 多维对比</h2>
+            </section>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;">我们用一张清晰的工程级对比表，来看透两者在技术底座上的本质区别：</p>
+
+            <!-- 对比伪表格 -->
+            <section style="margin:20px 0; border:1px solid #dbeafe; border-radius:8px; overflow:hidden;">
+                <section style="background-color:#0f2a5f; padding:12px 16px; display:table; width:100%;">
+                    <div style="display:table-cell; width:20%; color:#ffffff; font-size:14px; font-weight:bold;">对比维度</div>
+                    <div style="display:table-cell; width:40%; color:#ffffff; font-size:14px; font-weight:bold;">Prompt（提示词）</div>
+                    <div style="display:table-cell; width:40%; color:#ffffff; font-size:14px; font-weight:bold;">Skills（测试能力模块）</div>
+                </section>
+                <section style="background-color:#ffffff; padding:12px 16px; border-bottom:1px solid #dbeafe; display:table; width:100%;">
+                    <div style="display:table-cell; width:20%; font-size:13px; color:#0f2a5f; font-weight:bold;">核心定位</div>
+                    <div style="display:table-cell; width:40%; font-size:13px; color:#64748b;">自然语言基础指令</div>
+                    <div style="display:table-cell; width:40%; font-size:13px; color:#0f2a5f; font-weight:bold;">结构化资产组件</div>
+                </section>
+                <section style="background-color:#f8fbff; padding:12px 16px; border-bottom:1px solid #dbeafe; display:table; width:100%;">
+                    <div style="display:table-cell; width:20%; font-size:13px; color:#0f2a5f; font-weight:bold;">复用能力</div>
+                    <div style="display:table-cell; width:40%; font-size:13px; color:#ef4444;">极低（依赖拷贝与人肉粘贴）</div>
+                    <div style="display:table-cell; width:40%; font-size:13px; color:#10b981; font-weight:bold;">极高（跨项目、跨系统调用）</div>
+                </section>
+                <section style="background-color:#ffffff; padding:12px 16px; border-bottom:1px solid #dbeafe; display:table; width:100%;">
+                    <div style="display:table-cell; width:20%; font-size:13px; color:#0f2a5f; font-weight:bold;">输出一致性</div>
+                    <div style="display:table-cell; width:40%; font-size:13px; color:#ef4444;">弱（随机性大，容易出现幻觉）</div>
+                    <div style="display:table-cell; width:40%; font-size:13px; color:#10b981; font-weight:bold;">强（通过 Schema 进行强校验约束）</div>
+                </section>
+                <section style="background-color:#f8fbff; padding:12px 16px; border-bottom:1px solid #dbeafe; display:table; width:100%;">
+                    <div style="display:table-cell; width:20%; font-size:13px; color:#0f2a5f; font-weight:bold;">版本控制</div>
+                    <div style="display:table-cell; width:40%; font-size:13px; color:#64748b;">基本无法实现粒度化跟踪</div>
+                    <div style="display:table-cell; width:40%; font-size:13px; color:#0f2a5f;">支持 Git 精细化代码版本管理</div>
+                </section>
+                <section style="background-color:#ffffff; padding:12px 16px; display:table; width:100%;">
+                    <div style="display:table-cell; width:20%; font-size:13px; color:#0f2a5f; font-weight:bold;">流水线集成</div>
+                    <div style="display:table-cell; width:40%; font-size:13px; color:#ef4444;">不支持（只能用于单机或临时交互）</div>
+                    <div style="display:table-cell; width:40%; font-size:13px; color:#10b981; font-weight:bold;">原生支持（完美融入 CI/CD 质量门禁）</div>
+                </section>
+            </section>
+
+            <!-- 概念核心提炼 -->
+            <blockquote style="margin:20px 0; padding:15px; background-color:#f8fafc; border-left:4px solid #64748b; font-size:15px; color:#475569; font-style:italic; border-radius:0 8px 8px 0;">
+                "简而言之：Prompt 就像是临时给出的‘纸质说明书’，而 Skills 则是已经打包好、提供标准接口的‘数字化核心工具组件’。"
+            </blockquote>
+
+            <!-- 一级标题 -->
+            <section style="margin:35px 0 20px 0; padding-left:12px; border-left:4px solid #14b8a6;">
+                <h2 style="font-size:18px; line-height:1.4; color:#0f2a5f; margin:0; font-weight:bold;">四、 实战演练：如何从测试场景中抽象并建模一个 Skill</h2>
+            </section>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;">将大段散乱的提示词资产化，需要遵循严密的方法论。我们可以将 Skills 的抽象提炼拆解为以下核心四步：</p>
+
+            <!-- 步骤流程卡 -->
+            <section style="margin:22px 0;">
+                <!-- 步骤1 -->
+                <div style="margin-bottom:15px; padding:15px; background:#f8fbff; border:1px solid #dbeafe; border-radius:8px;">
+                    <div style="font-size:14px; font-weight:bold; color:#0f2a5f; margin-bottom:5px;"><span style="background-color:#0f2a5f; color:#fff; padding:2px 8px; border-radius:4px; font-size:12px; margin-right:6px;">Step 1</span> 识别高频核心测试场景</div>
+                    <div style="font-size:14px; color:#475569; line-height:1.7;">筛选出高重复性、输入结构稳定且输出可高度标准化的任务。典型如：日志自动分析（Log Analysis）、Diff 风险智能分析（Code Change Risk）、接口失败自动断言定位（API Failure Analysis）。</div>
+                </div>
+                <!-- 步骤2 -->
+                <div style="margin-bottom:15px; padding:15px; background:#f8fbff; border:1px solid #dbeafe; border-radius:8px;">
+                    <div style="font-size:14px; font-weight:bold; color:#0f2a5f; margin-bottom:5px;"><span style="background-color:#0f2a5f; color:#fff; padding:2px 8px; border-radius:4px; font-size:12px; margin-right:6px;">Step 2</span> 定义契约化的输入边界 (Input Contract)</div>
+                    <div style="font-size:14px; color:#475569; line-height:1.7;">不要再直接传递无格式的长串文本。在代码侧将输入定义为强类型的契约实体，明确包含 <code>error_log</code>, <code>service_name</code>, <code>trace_id</code> 以及 <code>dependency_map</code>。</div>
+                </div>
+                <!-- 步骤3 -->
+                <div style="margin-bottom:15px; padding:15px; background:#f8fbff; border:1px solid #dbeafe; border-radius:8px;">
+                    <div style="font-size:14px; font-weight:bold; color:#0f2a5f; margin-bottom:5px;"><span style="background-color:#0f2a5f; color:#fff; padding:2px 8px; border-radius:4px; font-size:12px; margin-right:6px;">Step 3</span> 强约束推理逻辑策略 (Reasoning Policy)</div>
+                    <div style="font-size:14px; color:#475569; line-height:1.7;">这是 Skill 的灵魂。不允许大模型自由发挥，而是强制其执行既定的推理链。以日志分析为例：<code>1. 错误大类分流 → 2. 核心调用链路拓扑扫描 → 3. 根因节点精准推断</code>。</div>
+                </div>
+                <!-- 步骤4 -->
+                <div style="margin-bottom:15px; padding:15px; background:#f8fbff; border:1px solid #dbeafe; border-radius:8px;">
+                    <div style="font-size:14px; font-weight:bold; color:#0f2a5f; margin-bottom:5px;"><span style="background-color:#0f2a5f; color:#fff; padding:2px 8px; border-radius:4px; font-size:12px; margin-right:6px;">Step 4</span> 订立输出强校验 Schema (Output Schema)</div>
+                    <div style="font-size:14px; color:#475569; line-height:1.7;">输出数据必须标准化。必须包含 <code>root_cause</code>, <code>affected_services</code>, <code>confidence_score</code> 和 <code>fix_suggestion</code>。通过 Pydantic 或 JSON Schema 在网关层进行强校验，若不符合格式则直接熔断。</div>
+                </div>
+            </section>
+
+            <!-- 图片占位块 1 -->
+            <section style="margin:22px 0; padding:12px; border:1px dashed #14b8a6; border-radius:16px; background:#f8fbff; box-sizing:border-box; overflow:hidden;">
+                <section style="min-height:220px; border:1px solid #dbeafe; border-radius:12px; background:#ffffff; display:flex; align-items:center; justify-content:center; text-align:center; box-sizing:border-box; padding:18px;">
+                    <span style="font-size:14px; line-height:1.8; color:#0f2a5f; font-weight:600;">
+                        此处插入图 1：从原始测试场景到标准 Skill 四步工程建模法演进图
+                    </span>
+                </section>
+            </section>
+
+            <!-- 一级标题 -->
+            <section style="margin:35px 0 20px 0; padding-left:12px; border-left:4px solid #14b8a6;">
+                <h2 style="font-size:18px; line-height:1.4; color:#0f2a5f; margin:0; font-weight:bold;">五、 完整 Skill 示例：工程化资产的目录结构规范</h2>
+            </section>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;">在实际研发落地中，我日常维护并使用的 <code>TestSkill-Hub</code>（自动化测试技能仓库）中，单项“基于需求生成测试用例”的 Skill 目录裁剪展现如下。这是纯粹的代码级资产管理模式：</p>
+
+            <!-- 代码块 -->
+            <pre style="margin:20px 0; padding:16px; background-color:#0f172a; border-radius:8px; overflow-x:auto; color:#cbd5e1; font-family:Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace; font-size:13px; line-height:1.6; border:1px solid #1e293b;"><code style="color:#cbd5e1; background:none; padding:0; font-family:inherit;">D:\AllProject\TestSkill-Hub\prd-to-testcase│
+├── SKILL.md                          # 技能全局入口配置文件 (核心调度与触发器)
+├── README.md                         # 本项技能的架构与运维说明文档
+├── 示例输出-测试技能提示词.md          # 黄金基准数据示例 (Few-Shot Reference)
+│
+├── agents/                           # 底层原子智能体驱动层
+│   └── openai.yaml                   # 兼容大模型 API 路由与基座配置
+│
+├── rules/                            # 核心知识解耦规则目录 (原子规则集)
+│   ├── _sections.md                  # 规则章节索引索引
+│   ├── input-classification.md       # 原始 PRD 输入分类过滤层
+│   ├── coverage-multi-dimension.md   # 测试覆盖率多维演进规则
+│   ├── api-test-rules.md             # 接口测试原子约束规范
+│   ├── ui-test-rules.md              # UI 测试行为分析规范
+│   ├── business-risk-rules.md        # 核心业务风险拦截矩阵
+│   ├── quality-atomic-steps.md       # 质量门禁原子处理步骤
+│   ├── trace-requirement-mapping.md  # 矩阵需求双向追溯映射
+│   └── xmind-structure.md            # 思维导图 XMind 结构规则
+│
+└── scripts/                          # 质量资产自动化流水线辅助脚本
+    ├── generate_prd_testcases.py     # 自动化执行流脚本
+    └── markdown_to_xmind.py          # 产出物格式智能转换工具</code></pre>
+
+            <!-- 二级小标题 -->
+            <p style="font-size:16px; color:#0f2a5f; font-weight:bold; margin:22px 0 10px 0; padding-bottom:4px; border-bottom:1px solid #e2e8f0;">⚙️ 架构拆解核心思想：</p>
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:10px 0;"><strong>化整为零，按需编排。</strong> 绝不能把成千上万行的庞大提示词一股脑堆在一个文本文件里。我们应该将各种垂直业务规则、覆盖逻辑拆散到 <code>rules/</code> 下。<code>SKILL.md</code> 仅作为统一调度器与控制中心，运行时根据触发场景动态编排、拼接原子规则，最后配合 <code>scripts/</code> 脚本快速完成工具链闭环。这种松耦合的架构设计极度利于测试团队的长期协作维护。</p>
+
+            <!-- 一级标题 -->
+            <section style="margin:35px 0 20px 0; padding-left:12px; border-left:4px solid #14b8a6;">
+                <h2 style="font-size:18px; line-height:1.4; color:#0f2a5f; margin:0; font-weight:bold;">六、 系列进化分水岭：从临时交互到工程资产</h2>
+            </section>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;">从 Prompt 迈向 Skills，不只是名词上的包装，更代表了测试团队整个研发范式与顶层设计的三层核心升级：</p>
+
+            <section style="margin:18px 0; padding:15px; background-color:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+                <p style="font-size:15px; line-height:1.8; color:#334155; margin:6px 0;"><strong style="color:#0f2a5f;">1. 表达方式层：</strong> 从原先碎片化的“纯文本指令表达”升级为高度可复用的“业务能力建模”。</p>
+                <p style="font-size:15px; line-height:1.8; color:#334155; margin:12px 0 6px 0;"><strong style="color:#0f2a5f;">2. 质量控制层：</strong> 彻底告别盲目的“人工直觉调优提示词”，走向利用严密输入输出 Schema 进行的“全结构化刚性约束”。</p>
+                <p style="font-size:15px; line-height:1.8; color:#334155; margin:12px 0 6px 0;"><strong style="color:#0f2a5f;">3. 团队资产层：</strong> 大模型能力从每个人电脑里的“临时聊天框交互工具”，真正沉淀为流水线可随时调用的“团队数字化工程资产”。</p>
+            </section>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;">这一篇章，正是我们整个“AI与测试质量工程”技术长文系列的分水岭：</p>
+
+            <!-- 图片占位块 2 -->
+            <section style="margin:22px 0; padding:12px; border:1px dashed #14b8a6; border-radius:16px; background:#f8fbff; box-sizing:border-box; overflow:hidden;">
+                <section style="min-height:220px; border:1px solid #dbeafe; border-radius:12px; background:#ffffff; display:flex; align-items:center; justify-content:center; text-align:center; box-sizing:border-box; padding:18px;">
+                    <span style="font-size:14px; line-height:1.8; color:#0f2a5f; font-weight:600;">
+                        此处插入图 2：测试质量工程系列知识演进图（前半段 Prompt 交互层 vs 后半段 Skill 系统层）
+                    </span>
+                </section>
+            </section>
+
+            <!-- 一级标题 -->
+            <section style="margin:35px 0 20px 0; padding-left:12px; border-left:4px solid #14b8a6;">
+                <h2 style="font-size:18px; line-height:1.4; color:#0f2a5f; margin:0; font-weight:bold;">七、 总结与展望</h2>
+            </section>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;">如果整篇文章只能留下一句话，请务必记住：<strong style="color:#0f2a5f;">在智能化测试工程体系中，我们不应该盲目去优化提示词（Prompt），而应该聚焦于设计和迭代能力模块（Skills）。</strong></p>
+
+            <p style="font-size:15px; line-height:2.0; color:#334155; margin:18px 0;">因为 Prompt 解决的永远只是“人该怎么跟大模型说话”的单点技巧，而 Skills 解决的才是“AI 测试能力该如何跨项目被规模化复用”的工程根基。只有当你的思路和架构跨越到 Skills 这一层时，智能化质量保障才真正脱离了粗暴的“调优技巧”，正式步入“平台工程化”的全新纪元。</p>
+
+            <!-- 结尾总结卡 -->
+            <section style="margin:25px 0 10px 0; padding:20px; background-color:#0f2a5f; color:#ffffff; border-radius:12px; text-align:left;">
+                <p style="margin:0 0 8px 0; font-size:16px; font-weight:bold; color:#14b8a6;">⏭️ 下期精彩预告：</p>
+                <p style="margin:0; font-size:14px; line-height:1.8; color:#cbd5e1;">接下来，我们将彻底推开智能化测试平台设计的大门，直接挺进更为硬核的系统工程深水区：《企业级 Skill Review 工程评审标准规范》与《Skill 注册中心与全自动 CI/CD 质量门禁体系设计》。敬请持续关注本公众号的硬核技术连载！</p>
+            </section>
+
+        </article>
+    </div>
+
+    <!-- 复制逻辑 JavaScript -->
+    <script>
+        function copyWechatContent() {
+            var article = document.getElementById('wechatArticle');
+            var toast = document.getElementById('toastNotification');
+            
+            if (!article) {
+                showToast('错误：未找到文章容器节点');
+                return;
+            }
+
+            // 优先使用新一代 Clipboard API 保持富文本样式
+            if (navigator.clipboard && window.ClipboardItem) {
+                try {
+                    // 复制完整的 outerHTML 以保留 inline 样式，文本回退使用 innerText
+                    var htmlBlob = new Blob([article.outerHTML], { type: 'text/html' });
+                    var textBlob = new Blob([article.innerText], { type: 'text/plain' });
+                    
+                    var item = new ClipboardItem({
+                        'text/html': htmlBlob,
+                        'text/plain': textBlob
+                    });
+                    
+                    navigator.clipboard.write([item]).then(function() {
+                        showToast('🎉 富文本已成功复制！请前往公众号后台直接粘贴。');
+                    }).catch(function(err) {
+                        console.error('ClipboardAPI 写入失败，切入备用方案: ', err);
+                        fallbackCopy(article);
+                    });
+                } catch (e) {
+                    console.error('ClipboardItem 初始化失败，切入备用方案: ', e);
+                    fallbackCopy(article);
+                }
+            } else {
+                // 浏览器不支持或特殊环境，切入旧版 Range 兼容方案
+                fallbackCopy(article);
+            }
+        }
+
+        function fallbackCopy(element) {
+            try {
+                var range = document.createRange();
+                var selection = window.getSelection();
+                
+                selection.removeAllRanges();
+                range.selectNodeContents(element);
+                selection.addRange(range);
+                
+                var successful = document.execCommand('copy');
+                selection.removeAllRanges(); // 及时清除选中状态避免视觉干扰
+                
+                if (successful) {
+                    showToast('🎉 富文本已复制(兼容模式)！请前往公众号后台粘贴。');
+                } else {
+                    showToast('❌ 复制失败，请使用 Chrome/Edge 浏览器重试。');
+                }
+            } catch (err) {
+                console.error('备用兼容方案复制失败: ', err);
+                showToast('❌ 复制异常，建议手动全选正文区域进行复制。');
+            }
+        }
+
+        function showToast(message) {
+            var toast = document.getElementById('toastNotification');
+            toast.innerText = message;
+            toast.style.display = 'block';
+            
+            // 3秒后自动淡出消失
+            setTimeout(function() {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

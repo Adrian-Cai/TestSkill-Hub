@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "安全加固"
+  short_description: "加固用户输入、认证、数据存储和外部集成相关代码"
+

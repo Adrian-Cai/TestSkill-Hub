@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "浏览器测试与 DevTools"
+  short_description: "在真实浏览器中检查页面、控制台、网络请求和交互问题"
+

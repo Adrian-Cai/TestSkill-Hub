@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "回归范围分析器"
+  short_description: "分析改动影响并制定回归测试范围、优先级和矩阵"
+

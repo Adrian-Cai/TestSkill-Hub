@@ -1,0 +1,109 @@
+<!--
+  toolbar.html — 公众号富文本复制器外壳
+
+  被以下规则引用，不要在规则文件里重复贴源码：
+    - rules/publish-html-structure.md
+    - rules/publish-copy-logic.md
+
+  Design Tokens（统一在 publish-style-rules.md 中定义，这里集中放置）：
+    主色          #0f2a5f
+    辅助色        #14b8a6
+    页面底色      #f1f7ff
+    卡片底        #ffffff
+    正文色        #334155
+    边框色        #dbeafe
+    代码块底      #0f172a
+    正文字号      15px
+    正文行高      1.9 ~ 2.0
+    二级小标题    17px
+    一级编号标题  18px
+    代码块字号    13px ~ 14px
+
+  使用方式：
+    把下面 <body> 之后到 </body> 之前的内容作为模板，插入到生成 .html 的相应位置。
+    文章正文部分写在 <article id="wechatArticle"> ... </article> 内。
+-->
+
+<!-- ===== 顶部工具栏（不要放进 article#wechatArticle 里） ===== -->
+<div class="toolbar"
+     style="position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 20px;background:#0f2a5f;color:#fff;border-bottom:2px solid #14b8a6;box-shadow:0 2px 8px rgba(15,42,95,0.08);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',Arial,sans-serif;">
+  <div class="toolbar-title"
+       style="font-size:16px;font-weight:700;letter-spacing:0.5px;color:#fff;">
+    公众号富文本复制器
+  </div>
+  <button id="copyRichBtn"
+          type="button"
+          style="padding:8px 18px;background:#14b8a6;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;">
+    复制富文本
+  </button>
+  <div class="toolbar-hint"
+       style="font-size:13px;color:#cbd5e1;margin-left:auto;">
+    点击按钮后粘贴到公众号后台
+  </div>
+</div>
+
+<!-- ===== 正文容器（被复制的根节点） ===== -->
+<article id="wechatArticle"
+         style="max-width:760px;margin:24px auto;padding:32px 24px;background:#fff;border:1px solid #dbeefe;border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',Arial,sans-serif;font-size:15px;line-height:1.95;color:#334155;box-sizing:border-box;">
+  <!-- 在此插入文章正文（封面标题卡 + 一级标题 + 二级小标题 + 卡片 + 列表 + 代码块 + 伪表格 + 图片占位块 + 结尾总结卡） -->
+</article>
+
+<!-- ===== 复制逻辑脚本（放在 body 末尾） ===== -->
+<script>
+  (function () {
+    var btn = document.getElementById('copyRichBtn');
+    var article = document.getElementById('wechatArticle');
+    if (!btn || !article) return;
+
+    btn.addEventListener('click', function () {
+      // 主逻辑：ClipboardItem + 同时写 text/html 和 text/plain
+      if (navigator.clipboard && window.ClipboardItem) {
+        var html = article.outerHTML;
+        var text = article.innerText;
+        var item = new ClipboardItem({
+          'text/html': new Blob([html], { type: 'text/html' }),
+          'text/plain': new Blob([text], { type: 'text/plain' })
+        });
+        navigator.clipboard.write([item]).then(
+          function () { setHint('已复制,可粘贴到公众号后台', true); },
+          function () { fallbackCopy(); }
+        );
+      } else {
+        fallbackCopy();
+      }
+    });
+
+    // 降级逻辑：Range + Selection + execCommand('copy')
+    function fallbackCopy() {
+      try {
+        var range = document.createRange();
+        range.selectNodeContents(article);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        var ok = document.execCommand('copy');
+        sel.removeAllRanges();
+        setHint(ok ? '已复制,可粘贴到公众号后台' : '复制失败,请手动选中文章区域复制', ok);
+      } catch (e) {
+        setHint('复制失败,请手动选中文章区域复制', false);
+      }
+    }
+
+    function setHint(msg, ok) {
+      btn.textContent = msg;
+      btn.style.background = ok ? '#0f9d8a' : '#dc2626';
+      setTimeout(function () {
+        btn.textContent = '复制富文本';
+        btn.style.background = '#14b8a6';
+      }, 2200);
+    }
+  })();
+</script>
+
+<!--
+  可选部分（按需启用）：
+
+  1. 工具栏增加"字号调整"按钮：把工具栏里 button 复制 2 次，绑定 increase/decrease fontSize 到 article 的 font-size 即可。
+  2. 复制成功后短暂高亮 article 容器：setHint 回调里加 article.style.boxShadow = '0 0 0 3px #14b8a6'，2 秒后清掉。
+  3. 移动端工具栏过窄：把 toolbar-hint 的 margin-left:auto 改成 margin-left:0; flex-basis:100%;。
+-->

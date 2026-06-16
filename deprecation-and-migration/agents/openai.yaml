@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "废弃与迁移"
+  short_description: "规划旧系统、API 或功能的下线和迁移路径"
+

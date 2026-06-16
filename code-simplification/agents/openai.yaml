@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "代码简化"
+  short_description: "在不改变行为的前提下简化复杂代码并提升可读性"
+

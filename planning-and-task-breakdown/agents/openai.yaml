@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "规划与任务拆解"
+  short_description: "把明确需求拆解为有序、可执行的工程任务"
+

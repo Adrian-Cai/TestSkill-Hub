@@ -1,0 +1,5 @@
+﻿version: 1
+skill:
+  display_name: "代码质量审查"
+  short_description: "从风险、回归和可维护性角度审查代码变更"
+
