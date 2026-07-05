@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI测试内训课件设计"
+  short_description: "设计AI赋能软件测试内训章节、讲师稿与PPT课件。"
+  default_prompt: "Use $ai-test-training-ppt-designer to turn this chapter input card into a complete AI software testing training module and PPT deck."
