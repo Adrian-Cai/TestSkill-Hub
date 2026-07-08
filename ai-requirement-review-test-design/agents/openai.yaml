@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "AI辅助需求评审与测试点设计"
+  short_description: "把需求文档转成需求摘要、规则清单、测试点矩阵、风险清单和可复用 Prompt。"
+  default_prompt: "请根据这份需求文档，生成AI辅助需求评审清单、测试点矩阵、需求疑问与风险清单，并落地为Markdown文件。"
