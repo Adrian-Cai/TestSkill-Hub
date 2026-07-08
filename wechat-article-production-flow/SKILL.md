@@ -1,5 +1,5 @@
 ---
-name: 公众号文章生产流程
+name: wechat-article-production-flow
 description: Use when writing Chinese WeChat public-account technical articles in AI testing, test development, or quality engineering, from topic selection through publish-ready HTML. Triggers: 公众号技术文章、选题策划、正文配图 Prompt、富文本 HTML、粘贴到公众号后台、WeChat clipboard exporter.
 keywords: 公众号 写作流水线 配图 Prompt 富文本 HTML AI Testing Test Development Quality Engineering
 alias: wechat-article-production-flow
@@ -32,11 +32,11 @@ digraph flow {
 }
 ```
 
-| 阶段 | 解决什么问题 | 产物 | 必读规则 |
-|------|-------------|------|---------|
-| Phase 1 | 选题没把握、结构散、写不出 | 2500~3500 字 Markdown 正文 | `writing-style-baseline` `writing-constraints` `writing-topic-selection` `writing-article-planning` `writing-full-draft` `writing-self-check` |
-| Phase 2 | 不知道配什么图、风格不统一 | 封面 + 6 张正文配图 Prompt（中英双语） | `visuals-structure-extraction` `visuals-cover-prompt` `visuals-body-prompt` `visuals-output-format` `visuals-prompt-quality` |
-| Phase 3 | 排版兼容性差、不会做复制器 | 可直接粘贴到公众号后台的 `.html` 文件 | `publish-delivery-contract` `publish-response-guardrails` `publish-html-structure` `publish-copy-logic` `publish-style-rules` `publish-article-processing` |
+| 阶段    | 解决什么问题               | 产物                                   | 必读规则                                                                                                                                                   |
+| ------- | -------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 1 | 选题没把握、结构散、写不出 | 2500~3500 字 Markdown 正文             | `writing-style-baseline` `writing-constraints` `writing-topic-selection` `writing-article-planning` `writing-full-draft` `writing-self-check`              |
+| Phase 2 | 不知道配什么图、风格不统一 | 封面 + 6 张正文配图 Prompt（中英双语） | `visuals-structure-extraction` `visuals-cover-prompt` `visuals-body-prompt` `visuals-output-format` `visuals-prompt-quality`                               |
+| Phase 3 | 排版兼容性差、不会做复制器 | 可直接粘贴到公众号后台的 `.html` 文件  | `publish-delivery-contract` `publish-response-guardrails` `publish-html-structure` `publish-copy-logic` `publish-style-rules` `publish-article-processing` |
 
 ## 入口索引
 
@@ -62,12 +62,12 @@ digraph flow {
 
 ## Rationalization 表 — agent 常用的自我说服
 
-| Excuse | Reality |
-|--------|---------|
-| "用户赶时间，贴代码更快" | publish-delivery-contract 明确：快捷指令不构成豁免 |
-| "旧文里写过但我忘了标题" | 没记录就说"未找到"，不要编造 |
-| "用户没给栏目，我反问" | writing-topic-selection 有"无栏目库默认推断"，不要反问 |
-| "长文硬塞一文方便用户" | 2500-3500 是硬上限，超出 REFACTOR 重写或拆篇 |
-| "用户要粉色调就给他" | visuals-body-prompt 的 design token 是为阅读一致性服务的，礼貌拒绝 |
-| "贴部分代码让用户先确认" | publish-response-guardrails：中途也不得贴源码 |
-| "测试场景是假设的不用真跑" | writing-skills TDD：基线必须真跑过才写规则 |
+| Excuse                     | Reality                                                            |
+| -------------------------- | ------------------------------------------------------------------ |
+| "用户赶时间，贴代码更快"   | publish-delivery-contract 明确：快捷指令不构成豁免                 |
+| "旧文里写过但我忘了标题"   | 没记录就说"未找到"，不要编造                                       |
+| "用户没给栏目，我反问"     | writing-topic-selection 有"无栏目库默认推断"，不要反问             |
+| "长文硬塞一文方便用户"     | 2500-3500 是硬上限，超出 REFACTOR 重写或拆篇                       |
+| "用户要粉色调就给他"       | visuals-body-prompt 的 design token 是为阅读一致性服务的，礼貌拒绝 |
+| "贴部分代码让用户先确认"   | publish-response-guardrails：中途也不得贴源码                      |
+| "测试场景是假设的不用真跑" | writing-skills TDD：基线必须真跑过才写规则                         |
