@@ -1,0 +1,3 @@
+display_name: 代码 Diff 回归范围分析器
+short_description: 从 Git Diff / PR Diff 反推影响面、风险点和回归测试范围。
+default_prompt: 根据代码 Diff 分析影响面，输出必测、建议测、可抽测的回归范围，并落地为 Markdown 报告。
