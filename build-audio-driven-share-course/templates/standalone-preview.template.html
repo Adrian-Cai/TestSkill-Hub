@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__PROJECT_NAME__</title>
+<style>
+:root{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:#f4f5ed;background:#10141b;font-synthesis:none;--bg:#080c0f;--ink:#f4f5ed;--muted:#899398;--accent:#d9f27c}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}button,input{font:inherit}body{background:radial-gradient(circle at 15% 15%,rgba(65,95,132,.22),transparent 34%),#10141b}
+.app{width:100vw;height:100vh;display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:18px;padding:16px;align-items:center}.app.record{display:block;padding:0;background:var(--bg)}
+.shell{position:relative;overflow:hidden;background:var(--bg);box-shadow:0 28px 90px rgba(0,0,0,.42)}.record .shell{box-shadow:none}.stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:left top;overflow:hidden;background:linear-gradient(145deg,#080c0f,#0b1013 58%,#090d0d)}
+.grid{position:absolute;inset:0;opacity:.12;background-image:linear-gradient(rgba(244,245,237,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(244,245,237,.08) 1px,transparent 1px);background-size:96px 96px}.glow{position:absolute;width:900px;height:900px;border-radius:50%;right:-430px;top:-430px;background:radial-gradient(circle,rgba(217,242,124,.12),transparent 66%)}
+.scene{position:absolute;inset:40px 84px;display:grid;place-items:center}.beat{width:min(1500px,92%);text-align:center;opacity:1;transform:none}.beatLabel{margin:0;color:var(--ink);font-size:100px;line-height:1.08;letter-spacing:-4px;font-weight:1000;text-wrap:balance}.beatLabel strong{color:var(--accent)}
+.guideBox{display:none;position:absolute;left:656px;right:656px;top:34px;bottom:34px;border:2px dashed rgba(255,96,115,.5);pointer-events:none}.guide .guideBox{display:block}.record .guideBox{display:none}
+.controls{align-self:stretch;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:24px;border-radius:18px;background:rgba(24,30,40,.97);color:#f4f7f9}.controls h2{margin:0;font-size:22px}.controls p{margin:0;color:rgba(244,247,249,.58);line-height:1.5}.time{padding:14px;border:1px solid rgba(217,242,124,.2);border-radius:10px;background:rgba(217,242,124,.07);color:var(--accent);font-size:21px;font-weight:900;font-variant-numeric:tabular-nums}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px}.buttons button{min-height:48px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.07);color:#fff;cursor:pointer;transition:.2s}.buttons button:hover{border-color:var(--accent);color:var(--accent)}.buttons button:active{transform:scale(.98)}.buttons .primary{background:var(--accent);border-color:transparent;color:#0a0e0d;font-weight:900}.seek{width:100%;accent-color:var(--accent)}.status{font-size:14px;line-height:1.5;color:rgba(244,247,249,.62)}
+</style>
+</head>
+<body>
+<div class="app" id="app"><div class="shell" id="shell"><div class="stage" id="stage" data-recording-content-only="true"><div class="grid"></div><div class="glow"></div><main class="scene"><article class="beat" id="beat"><h1 class="beatLabel" id="beatLabel"></h1></article></main><div class="guideBox"></div></div></div>
+<aside class="controls" id="controls"><h2>预览控制</h2><p>控制区域位于录制画布之外<br>1920 × 1080</p><div class="time" id="time">0:00.0</div><div class="buttons"><button id="reset">回到开头</button><button class="primary" id="play">播放</button><button id="minus">−5 秒</button><button id="plus">+5 秒</button></div><input class="seek" id="seek" type="range" min="0" step="0.01"><div class="status" id="status">正在加载音频…</div></aside>
+<audio id="audio" preload="auto" src="__AUDIO_DATA_URI__"></audio></div>
+<script>
+const TIMELINE=__TIMELINE_JSON__,CONTENT_START=Number(TIMELINE.contentStart??(TIMELINE.scenes?.find(s=>s.layout!=='silence')?.start??0)),END=Number(TIMELINE.duration||0),params=new URLSearchParams(location.search),record=params.get('record')==='1',guide=params.get('guide')==='1',autoplay=params.get('autoplay')==='1',delay=Math.max(0,Number(params.get('delay')||0)),initial=Number(params.get('t')||0),$=id=>document.getElementById(id),audio=$('audio');let playing=false,raf=0,lastBeatKey='';
+if(record){$('app').classList.add('record');$('controls').remove()}else if(guide){$('app').classList.add('guide')}
+function fmt(v){v=Math.max(0,v-CONTENT_START);const m=Math.floor(v/60),s=Math.floor(v%60),d=Math.floor(v%1*10);return `${m}:${String(s).padStart(2,'0')}.${d}`}
+function activeScene(t){return TIMELINE.scenes.find(s=>t>=Number(s.start)&&t<Number(s.end))||TIMELINE.scenes[TIMELINE.scenes.length-1]}
+function cueState(scene,t){let index=-1;for(let i=0;i<(scene?.cues||[]).length;i++){if(t>=Number(scene.cues[i].at))index=i;else break}return{cue:index>=0?scene.cues[index]:null,index}}
+function render(){const t=Number(audio.currentTime||CONTENT_START),scene=activeScene(t),state=cueState(scene,t),key=`${scene?.id}:${state.index}`,label=state.cue?.label||'',beat=$('beat');$('beatLabel').textContent=label;beat.hidden=!label;if(label&&key!==lastBeatKey){beat.animate([{opacity:0,transform:'translateY(24px) scale(.985)'},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.18,.78,.23,1)'});lastBeatKey=key}if(!record){$('time').textContent=`${fmt(t)} / ${fmt(END)}`;$('seek').value=t}}
+function tick(){render();if(!audio.paused&&!audio.ended){raf=requestAnimationFrame(tick)}else{playing=false;if(!record)$('play').textContent='播放'}}
+async function play(){try{if(audio.currentTime<CONTENT_START||audio.currentTime>=END)audio.currentTime=CONTENT_START;await audio.play();playing=true;if(!record){$('play').textContent='暂停';$('status').textContent='正在播放'}cancelAnimationFrame(raf);raf=requestAnimationFrame(tick)}catch(err){if(!record)$('status').textContent='播放失败：'+(err?.message||err)}}
+function pause(){audio.pause();playing=false;cancelAnimationFrame(raf);if(!record){$('play').textContent='播放';$('status').textContent='已暂停'}render()}
+function seek(v){audio.currentTime=Math.max(CONTENT_START,Math.min(END,Number(v)));render()}
+function resize(){const side=record?0:408,s=Math.max(.1,Math.min((innerWidth-side-(record?0:18))/1920,innerHeight/1080));$('shell').style.width=1920*s+'px';$('shell').style.height=1080*s+'px';$('stage').style.transform=`scale(${s})`}
+addEventListener('resize',resize);resize();audio.addEventListener('loadedmetadata',()=>{audio.currentTime=Math.max(CONTENT_START,Math.min(END,CONTENT_START+initial));if(!record){$('seek').min=CONTENT_START;$('seek').max=END;$('status').textContent='音频已加载，点击播放'}render();if(autoplay)setTimeout(play,delay*1000)});audio.addEventListener('error',()=>{if(!record)$('status').textContent='音频加载失败，请重新生成嵌入音频的页面'});audio.addEventListener('ended',pause);
+if(!record){$('play').onclick=()=>playing?pause():play();$('reset').onclick=()=>seek(CONTENT_START);$('minus').onclick=()=>seek(audio.currentTime-5);$('plus').onclick=()=>seek(audio.currentTime+5);$('seek').oninput=e=>seek(e.target.value)}
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.code==='Space'){e.preventDefault();playing?pause():play()}if(e.code==='ArrowLeft')seek(audio.currentTime-5);if(e.code==='ArrowRight')seek(audio.currentTime+5);if(e.key.toLowerCase()==='r')seek(CONTENT_START)});render();
+</script>
+</body>
+</html>

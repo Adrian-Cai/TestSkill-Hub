@@ -1,0 +1,29 @@
+{
+  "language": "zh",
+  "language_probability": 1.0,
+  "duration": 3.0,
+  "duration_after_vad": 2.5,
+  "segments": [
+    {
+      "id": 1,
+      "start": 0.5,
+      "end": 1.4,
+      "text": "音频进入正文",
+      "words": []
+    },
+    {
+      "id": 2,
+      "start": 1.5,
+      "end": 2.3,
+      "text": "画面由音频时间驱动",
+      "words": []
+    },
+    {
+      "id": 3,
+      "start": 2.4,
+      "end": 2.9,
+      "text": "用于录制",
+      "words": []
+    }
+  ]
+}

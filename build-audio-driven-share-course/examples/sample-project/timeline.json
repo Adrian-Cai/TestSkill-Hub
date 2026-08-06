@@ -1,0 +1,40 @@
+{
+  "duration": 3.0,
+  "source": "audio/sample-audio.wav",
+  "contentStart": 0.5,
+  "scenes": [
+    {
+      "id": "00",
+      "start": 0.0,
+      "end": 0.5,
+      "layout": "silence",
+      "cues": []
+    },
+    {
+      "id": "01",
+      "start": 0.5,
+      "end": 3.0,
+      "layout": "demo",
+      "cues": [
+        {
+          "at": 0.5,
+          "action": "reveal",
+          "target": "demo-1",
+          "label": "音频进入正文"
+        },
+        {
+          "at": 1.5,
+          "action": "focus",
+          "target": "demo-2",
+          "label": "画面由 audio.currentTime 驱动"
+        },
+        {
+          "at": 2.4,
+          "action": "finalize",
+          "target": "demo-3",
+          "label": "可以交给 OBS 浏览器来源录制"
+        }
+      ]
+    }
+  ]
+}

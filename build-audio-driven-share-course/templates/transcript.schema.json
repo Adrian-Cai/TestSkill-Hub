@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Raw Transcript",
+  "type": "object",
+  "required": ["language", "duration", "segments"],
+  "properties": {
+    "language": {"type": "string"},
+    "language_probability": {"type": "number"},
+    "duration": {"type": "number", "minimum": 0},
+    "duration_after_vad": {"type": "number", "minimum": 0},
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "start", "end", "text"],
+        "properties": {
+          "id": {"type": ["integer", "string"]},
+          "start": {"type": "number"},
+          "end": {"type": "number"},
+          "text": {"type": "string"},
+          "words": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["start", "end", "word"],
+              "properties": {
+                "start": {"type": "number"},
+                "end": {"type": "number"},
+                "word": {"type": "string"},
+                "probability": {"type": "number"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

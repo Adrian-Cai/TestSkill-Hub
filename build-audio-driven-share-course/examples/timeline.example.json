@@ -1,0 +1,26 @@
+{
+  "duration": 111.307,
+  "source": "audio/example.m4a",
+  "contentStart": 10.46,
+  "scenes": [
+    {
+      "id": "00",
+      "start": 0.0,
+      "end": 10.46,
+      "layout": "silence",
+      "cues": []
+    },
+    {
+      "id": "01",
+      "start": 10.46,
+      "end": 111.307,
+      "layout": "opening-to-mismatch",
+      "cues": [
+        {"at": 10.46, "action": "reveal", "target": "debate", "label": "Skill 到底有没有用"},
+        {"at": 23.65, "action": "reverse", "target": "reversal", "label": "照搬别人的 Skill 通常没用"},
+        {"at": 78.91, "action": "fail", "target": "result-check", "label": "执行成功，但结果不好用"},
+        {"at": 96.66, "action": "finalize", "target": "context-cost", "label": "大量上下文，结果仍需大改"}
+      ]
+    }
+  ]
+}

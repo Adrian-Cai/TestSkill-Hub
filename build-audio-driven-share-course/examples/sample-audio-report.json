@@ -1,0 +1,17 @@
+{
+  "path": "/mnt/data/build-audio-driven-share-course/examples/sample-audio.wav",
+  "filename": "sample-audio.wav",
+  "extension": ".wav",
+  "format_name": "wav",
+  "format_long_name": "WAV / WAVE (Waveform Audio)",
+  "codec_name": "pcm_s16le",
+  "codec_long_name": "PCM signed 16-bit little-endian",
+  "sample_rate": 16000,
+  "channels": 1,
+  "container_duration": 3.0,
+  "decoded_duration": 3.0,
+  "duration_difference": 0.0,
+  "first_audio_timestamp": 0.0,
+  "timestamp_jumps": [],
+  "warnings": []
+}

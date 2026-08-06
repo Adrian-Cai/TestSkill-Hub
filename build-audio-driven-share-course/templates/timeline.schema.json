@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["duration", "source", "scenes"],
+  "properties": {
+    "duration": {"type": "number", "minimum": 0},
+    "source": {"type": "string"},
+    "contentStart": {"type": "number", "minimum": 0},
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "start", "end", "layout", "cues"],
+        "properties": {
+          "id": {"type": "string"},
+          "start": {"type": "number"},
+          "end": {"type": "number"},
+          "layout": {"type": "string"},
+          "cues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["at", "action", "target", "label"],
+              "properties": {
+                "at": {"type": "number"},
+                "action": {"type": "string"},
+                "target": {"type": "string"},
+                "label": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
