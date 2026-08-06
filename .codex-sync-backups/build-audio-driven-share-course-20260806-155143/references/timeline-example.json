@@ -1,0 +1,34 @@
+{
+  "duration": 120,
+  "source": "public/share.mp3",
+  "scenes": [
+    {
+      "id": "01",
+      "start": 0,
+      "end": 54,
+      "title": "问题到底是什么",
+      "detailAt": 42,
+      "sourceRange": "00:00-00:54",
+      "cues": [
+        { "at": 3, "action": "reveal", "target": "question", "label": "问题出现" },
+        { "at": 18, "action": "expand", "target": "constraints", "label": "约束展开" },
+        { "at": 39, "action": "focus", "target": "root-cause", "label": "聚焦根因" }
+      ]
+    },
+    {
+      "id": "02",
+      "start": 54,
+      "end": 120,
+      "title": "把问题做成可交付系统",
+      "detailAt": 102,
+      "sourceRange": "00:54-02:00",
+      "cues": [
+        { "at": 57, "action": "reveal", "target": "user", "label": "用户" },
+        { "at": 72, "action": "connect", "target": "delivery", "label": "交付链路" },
+        { "at": 96, "action": "expand", "target": "feedback", "label": "反馈迭代" },
+        { "at": 112, "action": "finalize", "target": "result", "label": "结果负责" }
+      ]
+    }
+  ]
+}
+
